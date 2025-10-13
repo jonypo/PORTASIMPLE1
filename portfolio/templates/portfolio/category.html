@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gryst Photo - {{ category|title }}</title>
+    <link rel="stylesheet" href="{% load static %}{% static 'css/style.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="main-clone-layout">
+        <header class="clone-header">
+            <div class="clone-header-left">
+                <!-- Logo eliminado -->
+            </div>
+            <nav class="clone-nav">
+                <a href="{% url 'category' 'fashion' %}" {% if category == 'fashion' %}class="active"{% endif %}>01 FASHION</a>
+                <a href="{% url 'category' 'blog' %}" {% if category == 'blog' %}class="active"{% endif %}>02 BLOG</a>
+                <a href="{% url 'category' 'about' %}" {% if category == 'about' %}class="active"{% endif %}>03 ABOUT</a>
+                <a href="{% url 'category' 'gear' %}" {% if category == 'gear' %}class="active"{% endif %}>04 GEAR RENTAL</a>
+                <a href="#contact">05 CONTACT</a>
+            </nav>
+            <div class="clone-header-right">
+                <a href="#" class="clone-social-link"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="clone-social-link"><i class="fab fa-facebook-f"></i></a>
+                <span class="clone-share-text">Share</span>
+            </div>
+        </header>
+        <main class="clone-gallery-main">
+            {% if images %}
+                <button class="clone-arrow left" onclick="previousImage()">&#8592;</button>
+                <div class="clone-gallery-img-container">
+                    {% for image in images %}
+                        <img class="clone-gallery-img {% if forloop.counter0 == 0 %}active{% endif %}" src="{{ image.image.url }}" alt="{{ image.title|default:'Imagen del portafolio' }}" onload="this.style.opacity='1'; checkImageAspect(this);" data-index="{{ forloop.counter0 }}">
+                    {% endfor %}
+                </div>
+                <button class="clone-arrow right" onclick="nextImage()">&#8594;</button>
+                <div class="category-title" style="position:absolute;top:24px;left:50%;transform:translateX(-50%);z-index:5;">
+                    <h2>{{ category|upper }}</h2>
+                </div>
+            {% else %}
+                <div class="no-images">
+                    <h2>No hay imágenes en {{ category|title }}</h2>
+                    <p>Esta categoría aún no tiene contenido.</p>
+                    <a href="{% url 'home' %}" class="back-btn">Volver al inicio</a>
+                </div>
+            {% endif %}
+        </main>
+    </div>
+    <script type="application/json" id="image-data">[{% for image in images %}{"src": "{{ image.image.url }}", "title": "{{ image.title|escapejs }}", "background_color": "{{ image.background_color|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+    <script src="{% static 'js/gallery.js' %}"></script>
+</body>
+</html> 

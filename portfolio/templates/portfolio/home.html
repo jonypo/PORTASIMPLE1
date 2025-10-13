@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gryst Photo</title>
+    <!-- Agrega la fuente Montserrat de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Agrega Font Awesome para los íconos (opcional pero recomendado) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tu archivo CSS -->
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Tu archivo JavaScript -->
+    <script src="{% static 'js/gallery.js' %}"></script>
+</head>
+<body>
+
+    <!-- Contenedor principal de toda la página -->
+    <div class="site-wrapper">
+        
+        <!-- Indicador de vista previa -->
+        {% if is_preview %}
+        <div class="preview-banner">
+            <div class="preview-content">
+                <i class="fas fa-eye"></i>
+                <span>Vista previa de: {{ preview_image.title }}</span>
+                <a href="{% url 'admin:portfolio_portfolioimage_change' preview_image.id %}" class="preview-edit-btn">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a href="{% url 'home' %}" class="preview-close-btn">
+                    <i class="fas fa-times"></i> Cerrar vista previa
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Barra lateral izquierda (HEADER) -->
+        <header class="site-header">
+            <!-- Logo eliminado -->
+        </header>
+
+        <!-- Contenido principal (Galería a la derecha) -->
+        <main class="main-content">
+
+            <!-- Controles superior derecho -->
+            <div class="top-controls">
+                <div class="social-links">
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                </div>
+                <a href="#" class="share-link">share</a>
+            </div>
+
+            <!-- Flecha de navegación IZQUIERDA -->
+            <button class="slider-arrow arrow-left">
+                <span class="line"></span>
+            </button>
+
+            <!-- Contenedor de la imagen central -->
+            <div class="gallery-container">
+                <img src="{% if images %}{{ images.0.image.url }}{% else %}https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1200&fit=crop&crop=center{% endif %}"
+                     alt="{% if images %}{{ images.0.title|default:'Imagen del portafolio' }}{% else %}Imagen del portafolio{% endif %}">
+            </div>
+
+            <!-- Flecha de navegación DERECHA -->
+            <button class="slider-arrow arrow-right">
+                <span class="line"></span>
+            </button>
+
+        </main>
+
+    </div>
+
+    <script type="application/json" id="image-data">[{% for image in images %}{"src": "{{ image.image.url }}", "title": "{{ image.title|escapejs }}", "background_color": "{{ image.background_color|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+    
+    {% if is_preview %}
+    <script type="application/json" id="preview-data">
+    {
+        "is_preview": true,
+        "preview_image": {
+            "src": "{{ preview_image.image.url }}",
+            "title": "{{ preview_image.title|escapejs }}",
+            "background_color": "{{ preview_image.background_color|escapejs }}"
+        }
+    }
+    </script>
+    {% endif %}
+
+</body>
+</html>
