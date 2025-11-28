@@ -171,23 +171,21 @@ html {
     /* Efecto visual al hacer click */
 }
 
-/* Estilo de la línea dentro de las flechas */
-.slider-arrow .line {
-    display: block;
-    width: 100%;
-    height: 1px;
-    background-color: #ffffff;
+/* Estilo de los iconos dentro de las flechas */
+.slider-arrow i {
+    font-size: 24px;
+    color: #ffffff;
     opacity: 0.5;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .slider-arrow:hover {
     transform: translateY(-50%) scale(1.1);
-    /* Efecto hover movido a CSS */
 }
 
-.slider-arrow:hover .line {
+.slider-arrow:hover i {
     opacity: 1;
+    transform: scale(1.2);
 }
 
 .arrow-left {
@@ -227,50 +225,75 @@ html {
 @media (max-width: 900px) {
     .site-wrapper {
         flex-direction: column;
-        /* Apila los elementos en vertical */
-        height: auto;
-        overflow-y: auto;
-        /* Permite scroll en móvil */
+        height: 100vh;
+        /* Fallback */
+        height: 100dvh;
+        /* Modern browsers */
+        overflow: hidden;
+        /* Prevent scrolling */
     }
 
     .site-header {
-        width: 100%;
-        padding: 20px;
-        flex-direction: row;
-        /* En móvil, el logo y nav van en fila */
-        justify-content: space-between;
-        align-items: center;
+        display: none;
+        /* Keep header hidden on mobile for now as requested/implied by full screen focus */
     }
 
-    /* Reglas de logo en móvil eliminadas */
-
-    /* Ocultar el menú de navegación principal en móvil (puedes añadir un botón "hamburguesa") */
     .main-nav {
         display: none;
     }
 
     .main-content {
-        padding: 20px;
-        min-height: 50vh;
+        padding: 0;
+        /* Remove padding to let image touch edges */
+        height: 100%;
+        width: 100%;
     }
 
     .gallery-container {
         width: 100%;
-        /* La imagen ocupa todo el ancho disponible */
+        height: 100%;
+    }
+
+    .gallery-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain !important;
+        /* Force full image visibility on mobile */
+        object-position: center;
     }
 
     .top-controls {
-        /* Los puedes ocultar o mover a otro lugar si quieres */
-        display: none;
+        display: flex;
+        /* Show controls on mobile */
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        /* Ensure above image */
     }
 
-    /* Ajustamos flechas para móvil */
+    /* Adjust arrows for mobile */
     .slider-arrow {
+        width: 50px;
+        height: 50px;
         left: 10px;
+        background-color: rgba(0, 0, 0, 0.3);
+        /* Semi-transparent background */
+        border-radius: 50%;
+        /* Circular button */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .arrow-right {
         right: 10px;
+        left: auto;
+    }
+
+    .slider-arrow i {
+        font-size: 20px;
+        color: white;
+        opacity: 1;
     }
 }
 

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,6 +29,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-your-secret-key-here'
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,[::1]').split(',')
+# Add Render.com to allowed hosts
+if not DEBUG:
+    ALLOWED_HOSTS += ['.onrender.com']
 
 
 # Application definition
@@ -85,6 +89,10 @@ DATABASES = {
     }
 }
 
+# Update database configuration from DATABASE_URL environment variable (if available)
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -136,3 +144,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# CSRF Trusted Origins for Render
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,11 +17,12 @@
     <!-- Tu archivo JavaScript -->
     <script src="{% static 'js/gallery.js' %}"></script>
 </head>
+
 <body>
 
     <!-- Contenedor principal de toda la página -->
     <div class="site-wrapper">
-        
+
         <!-- Indicador de vista previa -->
         {% if is_preview %}
         <div class="preview-banner">
@@ -56,26 +58,27 @@
 
             <!-- Flecha de navegación IZQUIERDA -->
             <button class="slider-arrow arrow-left">
-                <span class="line"></span>
+                <i class="fas fa-chevron-left"></i>
             </button>
 
             <!-- Contenedor de la imagen central -->
             <div class="gallery-container">
                 <img src="{% if images %}{{ images.0.image.url }}{% else %}https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=1200&fit=crop&crop=center{% endif %}"
-                     alt="{% if images %}{{ images.0.title|default:'Imagen del portafolio' }}{% else %}Imagen del portafolio{% endif %}">
+                    alt="{% if images %}{{ images.0.title|default:'Imagen del portafolio' }}{% else %}Imagen del portafolio{% endif %}">
             </div>
 
             <!-- Flecha de navegación DERECHA -->
             <button class="slider-arrow arrow-right">
-                <span class="line"></span>
+                <i class="fas fa-chevron-right"></i>
             </button>
 
         </main>
 
     </div>
 
-    <script type="application/json" id="image-data">[{% for image in images %}{"src": "{{ image.image.url }}", "title": "{{ image.title|escapejs }}", "background_color": "{{ image.background_color|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
-    
+    <script type="application/json"
+        id="image-data">[{% for image in images %}{"src": "{{ image.image.url }}", "title": "{{ image.title|escapejs }}", "background_color": "{{ image.background_color|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+
     {% if is_preview %}
     <script type="application/json" id="preview-data">
     {
@@ -90,4 +93,5 @@
     {% endif %}
 
 </body>
+
 </html>

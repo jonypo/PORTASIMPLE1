@@ -71,3 +71,25 @@ portasimple/
 ## Créditos
 
 Clon del diseño original de Gryst Photo (grystphoto.com) 
+
+## Despliegue en Render
+
+Este proyecto está configurado para desplegarse fácilmente en [Render](https://render.com).
+
+### Pasos para desplegar:
+
+1. Crea una cuenta en Render y conecta tu repositorio de GitHub.
+2. Crea un nuevo **Web Service**.
+3. Selecciona el repositorio `PORTASIMPLE1`.
+4. Render detectará automáticamente la configuración del archivo `render.yaml`.
+5. Haz clic en **Create Web Service**.
+
+### Variables de Entorno
+
+Render configurará automáticamente la base de datos PostgreSQL. Sin embargo, debes asegurarte de que la variable `SECRET_KEY` se genere correctamente (está configurada para generarse automáticamente en `render.yaml`).
+
+### Nota Importante
+
+Al usar Render (PostgreSQL), la base de datos local (SQLite) no se subirá. Deberás:
+1. Crear un superusuario en la consola de Render (Shell).
+2. Volver a subir las imágenes desde el panel de administración en producción. 
