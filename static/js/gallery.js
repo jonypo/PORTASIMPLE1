@@ -5,11 +5,16 @@ let totalImages = 0;
 let imageSources = [];
 let mode = 'home'; // 'home' or 'category'
 let categoryDomImages = [];
+// Cache aspect ratios for instant switching
+let imageAspectCache = {};
 
 // Check image aspect ratio and apply appropriate styling
 function checkImageAspect(img) {
-    const apply = function() {
+    const apply = function () {
         const aspect = this.naturalWidth / this.naturalHeight;
+        // Cache the aspect ratio
+        imageAspectCache[this.src] = aspect;
+
         // Keep viewport-sized dimensions from CSS; just switch fit mode
         if (aspect >= 1) {
             // Horizontal or square -> cubrir toda la pantalla
@@ -28,7 +33,23 @@ function checkImageAspect(img) {
             }
         }
     };
-    if (img.complete && img.naturalWidth > 0) {
+
+    // Check if we have cached aspect ratio - use it immediately
+    if (imageAspectCache[img.src]) {
+        const aspect = imageAspectCache[img.src];
+        if (aspect >= 1) {
+            img.style.objectFit = 'cover';
+            img.style.objectPosition = 'center';
+            document.body.style.backgroundColor = '#0f719b';
+        } else {
+            img.style.objectFit = 'contain';
+            img.style.objectPosition = 'center';
+            const imageData = getCurrentImageData();
+            if (imageData && imageData.background_color) {
+                document.body.style.backgroundColor = imageData.background_color;
+            }
+        }
+    } else if (img.complete && img.naturalWidth > 0) {
         apply.call(img);
     } else {
         img.onload = apply;
@@ -54,8 +75,8 @@ function parseImageDataFromJSON() {
         if (Array.isArray(parsed)) {
             return parsed
                 .filter(item => item && item.src)
-                .map(item => ({ 
-                    src: String(item.src), 
+                .map(item => ({
+                    src: String(item.src),
                     title: item.title ? String(item.title) : '',
                     background_color: item.background_color ? String(item.background_color) : '#0f719b'
                 }));
@@ -79,6 +100,20 @@ function getCurrentImageData() {
         return imageSources[currentImageIndex];
     }
     return null;
+}
+
+// Preload all images to avoid loading delays and cache aspect ratios
+function preloadImages() {
+    imageSources.forEach((imageData, index) => {
+        const img = new Image();
+        img.onload = function () {
+            // Cache aspect ratio when image loads
+            const aspect = this.naturalWidth / this.naturalHeight;
+            imageAspectCache[this.src] = aspect;
+            console.log('[gallery] Preloaded image', index + 1, '/', totalImages, 'aspect:', aspect.toFixed(2));
+        };
+        img.src = imageData.src;
+    });
 }
 
 function initializeImageSources() {
@@ -112,6 +147,8 @@ function initializeImageSources() {
             checkImageAspect(imgEl);
         }
         console.log('[gallery] mode=home (json) totalImages=', totalImages);
+        // Preload all images for instant switching
+        preloadImages();
         return;
     }
 
@@ -126,90 +163,88 @@ function initializeImageSources() {
 }
 
 // Initialize gallery
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeImageSources();
     updateCounter();
     checkAllImages();
-    
+
     // Handle preview mode if enabled
     handlePreviewMode();
-    
+
     // Start auto-advance if there are multiple images
     if (totalImages >= 2) {
         startAutoAdvance(5000);
     } else {
         console.log('[gallery] auto-advance disabled, totalImages < 2');
     }
-    
+
     // Add click handlers for navigation buttons
     const prevBtn = document.querySelector('.arrow-left') || document.querySelector('.clone-arrow.left');
     const nextBtn = document.querySelector('.arrow-right') || document.querySelector('.clone-arrow.right');
-    
+
     console.log('[gallery] Navigation buttons found:', { prevBtn: !!prevBtn, nextBtn: !!nextBtn });
-    
+
     if (prevBtn) {
-        prevBtn.addEventListener('click', function(e) {
+        prevBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('[gallery] Previous button clicked');
+            stopAutoAdvance();
             previousImage();
+            if (totalImages >= 2) startAutoAdvance(5000);
         });
     }
-    
+
     if (nextBtn) {
-        nextBtn.addEventListener('click', function(e) {
+        nextBtn.addEventListener('click', function (e) {
             e.preventDefault();
             console.log('[gallery] Next button clicked');
+            stopAutoAdvance();
             nextImage();
+            if (totalImages >= 2) startAutoAdvance(5000);
         });
     }
-    
-    // Add hover effects for navigation buttons
-    const navButtons = document.querySelectorAll('.slider-arrow, .clone-arrow');
-    navButtons.forEach(btn => {
-        btn.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-50%) scale(1.1)';
-        });
-        
-        btn.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(-50%) scale(1)';
-        });
-    });
-    
+
     // Add keyboard navigation
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowLeft') {
+            stopAutoAdvance();
             previousImage();
+            if (totalImages >= 2) startAutoAdvance(5000);
         } else if (e.key === 'ArrowRight') {
+            stopAutoAdvance();
             nextImage();
+            if (totalImages >= 2) startAutoAdvance(5000);
         }
     });
-    
+
     // Add touch/swipe support for mobile
     let startX = 0;
     let endX = 0;
-    
-    document.addEventListener('touchstart', function(e) {
+
+    document.addEventListener('touchstart', function (e) {
         startX = e.touches[0].clientX;
     });
-    
-    document.addEventListener('touchend', function(e) {
+
+    document.addEventListener('touchend', function (e) {
         endX = e.changedTouches[0].clientX;
         handleSwipe();
     });
-    
+
     function handleSwipe() {
         const swipeThreshold = 50;
         const diff = startX - endX;
-        
+
         if (Math.abs(diff) > swipeThreshold) {
+            stopAutoAdvance();
             if (diff > 0) {
                 nextImage();
             } else {
                 previousImage();
             }
+            if (totalImages >= 2) startAutoAdvance(5000);
         }
     }
-    
+
     // Add smooth transitions between images
     addTransitionEffects();
 });
@@ -268,7 +303,7 @@ function previousImage() {
 function updateCounter() {
     const currentElement = document.getElementById('current-image');
     const totalElement = document.getElementById('total-images');
-    
+
     if (currentElement && totalElement) {
         currentElement.textContent = currentImageIndex + 1;
         totalElement.textContent = totalImages;
@@ -309,12 +344,12 @@ function handlePreviewMode() {
                 // Find the preview image in the current image sources
                 const previewImage = previewData.preview_image;
                 const previewIndex = imageSources.findIndex(img => img.src === previewImage.src);
-                
+
                 if (previewIndex !== -1) {
                     // Set the current image to the preview image
                     currentImageIndex = previewIndex;
-                    updateGalleryDisplay();
-                    
+                    showImage(previewIndex);
+
                     // Add a visual indicator that we're in preview mode
                     const galleryContainer = document.querySelector('.gallery-container');
                     if (galleryContainer) {
@@ -328,4 +363,4 @@ function handlePreviewMode() {
             console.error('Error parsing preview data:', e);
         }
     }
-} 
+}

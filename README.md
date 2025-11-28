@@ -37,7 +37,7 @@ Un clon del portafolio de fotografía Gryst Photo construido con Django.
 
 ## Uso
 
-1. Accede a `http://localhost:8000/admin/` con las credenciales del superusuario
+1. Accede a ` http://localhost:8000/admin/` con las credenciales del superusuario
 2. Sube imágenes en la sección "Portfolio Images"
 3. Asigna categorías y orden a las imágenes
 4. Visita `http://localhost:8000/` para ver el portafolio
